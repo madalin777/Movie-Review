@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ReviewBox - Aplicație de Recenzii Filme
 
 O aplicație modernă de recenzii pentru filme, inspirată de IMDb, construită cu React. Explorează filme, citește recenzii, filtrează după gen și sortează după preferințe.
@@ -170,3 +171,6 @@ Acest proiect este open source și disponibil sub licență MIT.
 ---
 
 Făcut cu ❤️ folosind React
+=======
+# Movie-Review
+>>>>>>> 2b0feadb8dad4270f73dcac500a90a767f8cc299
