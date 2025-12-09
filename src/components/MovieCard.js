@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { getFallbackImage } from '../utils/tmdbImages';
 
-const MovieCard = ({ movie }) => {
+const MovieCard = ({ movie, onPress }) => {
   const [imageError, setImageError] = useState(false);
 
   const formatRating = (rating) => {
@@ -10,14 +10,10 @@ const MovieCard = ({ movie }) => {
   };
 
   const getRatingColor = (rating) => {
-    if (rating >= 8.5) return 'rating-excellent';
-    if (rating >= 7.5) return 'rating-good';
-    if (rating >= 6.0) return 'rating-average';
-    return 'rating-poor';
-  };
-
-  const handleImageError = () => {
-    setImageError(true);
+    if (rating >= 8.5) return '#10b981';
+    if (rating >= 7.5) return '#22c55e';
+    if (rating >= 6.0) return '#f59e0b';
+    return '#ef4444';
   };
 
   const posterSrc = imageError || !movie.poster 
@@ -25,41 +21,125 @@ const MovieCard = ({ movie }) => {
     : movie.poster;
 
   return (
-    <Link to={`/movie/${movie.id}`} className="movie-card">
-      <div className="movie-card__poster-container">
-        <img
-          src={posterSrc}
-          alt={`Poster pentru ${movie.title}`}
-          className="movie-card__poster"
-          loading="lazy"
-          onError={handleImageError}
+    <TouchableOpacity onPress={onPress} style={styles.card}>
+      <View style={styles.posterContainer}>
+        <Image
+          source={{ uri: posterSrc }}
+          style={styles.poster}
+          onError={() => setImageError(true)}
+          resizeMode="cover"
         />
-        <div className="movie-card__overlay">
-          <div className={`movie-card__rating ${getRatingColor(movie.rating)}`}>
-            <span className="movie-card__rating-value">
+        <View style={styles.overlay}>
+          <View style={[styles.rating, { borderColor: getRatingColor(movie.rating) }]}>
+            <Text style={[styles.ratingValue, { color: getRatingColor(movie.rating) }]}>
               {formatRating(movie.rating)}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div className="movie-card__content">
-        <h3 className="movie-card__title">{movie.title}</h3>
-        <div className="movie-card__meta">
-          <span className="movie-card__year">{movie.year}</span>
-          <span className="movie-card__runtime">{movie.runtime} min</span>
-        </div>
-        <div className="movie-card__genres">
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View style={styles.content}>
+        <Text style={styles.title} numberOfLines={2}>{movie.title}</Text>
+        <View style={styles.meta}>
+          <Text style={styles.year}>{movie.year}</Text>
+          {movie.runtime && (
+            <Text style={styles.runtime}>{movie.runtime} min</Text>
+          )}
+        </View>
+        <View style={styles.genres}>
           {movie.genres.slice(0, 3).map((genre, index) => (
-            <span key={index} className="movie-card__genre">
-              {genre}
-            </span>
+            <View key={index} style={styles.genre}>
+              <Text style={styles.genreText}>{genre}</Text>
+            </View>
           ))}
-        </div>
-        <p className="movie-card__votes">{movie.votes.toLocaleString()} voturi</p>
-      </div>
-    </Link>
+        </View>
+        <Text style={styles.votes}>{movie.votes?.toLocaleString() || 0} voturi</Text>
+      </View>
+    </TouchableOpacity>
   );
 };
 
-export default MovieCard;
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#2d2d2d',
+    marginBottom: 20,
+    width: '48%',
+  },
+  posterContainer: {
+    width: '100%',
+    aspectRatio: 2 / 3,
+    position: 'relative',
+    backgroundColor: '#1a1a1a',
+  },
+  poster: {
+    width: '100%',
+    height: '100%',
+  },
+  overlay: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    padding: 15,
+  },
+  rating: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderWidth: 2,
+  },
+  ratingValue: {
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  content: {
+    padding: 15,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#f8fafc',
+  },
+  meta: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 10,
+  },
+  year: {
+    fontSize: 14,
+    color: '#cbd5e1',
+    fontWeight: '600',
+  },
+  runtime: {
+    fontSize: 14,
+    color: '#cbd5e1',
+    fontWeight: '600',
+  },
+  genres: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 10,
+  },
+  genre: {
+    padding: 4,
+    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.3)',
+    borderRadius: 6,
+  },
+  genreText: {
+    fontSize: 11,
+    color: '#fbbf24',
+    fontWeight: '600',
+  },
+  votes: {
+    fontSize: 12,
+    color: '#64748b',
+  },
+});
 
+export default MovieCard;

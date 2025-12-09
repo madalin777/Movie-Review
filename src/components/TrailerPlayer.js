@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Linking } from 'react-native';
+import { WebView } from 'react-native-webview';
 
-/**
- * Component for displaying movie trailers
- * Supports YouTube, Vimeo, and direct video URLs
- */
 const TrailerPlayer = ({ trailerUrl, title }) => {
   const [showTrailer, setShowTrailer] = useState(false);
 
@@ -15,7 +13,6 @@ const TrailerPlayer = ({ trailerUrl, title }) => {
   const getYouTubeVideoId = (url) => {
     if (!url) return null;
     
-    // Handle different YouTube URL formats
     const patterns = [
       /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
       /youtube\.com\/watch\?.*v=([^&\n?#]+)/,
@@ -41,89 +38,136 @@ const TrailerPlayer = ({ trailerUrl, title }) => {
   const youtubeId = getYouTubeVideoId(trailerUrl);
   const vimeoId = getVimeoVideoId(trailerUrl);
 
-  const renderTrailer = () => {
+  const getEmbedUrl = () => {
     if (youtubeId) {
-      return (
-        <div className="trailer-player__container">
-          <iframe
-            className="trailer-player__iframe"
-            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
-            title={`Trailer pentru ${title}`}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      );
+      return `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
     }
-
     if (vimeoId) {
-      return (
-        <div className="trailer-player__container">
-          <iframe
-            className="trailer-player__iframe"
-            src={`https://player.vimeo.com/video/${vimeoId}?autoplay=1`}
-            title={`Trailer pentru ${title}`}
-            frameBorder="0"
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      );
+      return `https://player.vimeo.com/video/${vimeoId}?autoplay=1`;
     }
-
-    // Fallback for direct video URLs
-    return (
-      <div className="trailer-player__container">
-        <video
-          className="trailer-player__video"
-          controls
-          autoPlay
-          src={trailerUrl}
-        >
-          Browserul tău nu suportă tag-ul video.
-        </video>
-      </div>
-    );
+    return null;
   };
 
+  const embedUrl = getEmbedUrl();
+
   return (
-    <div className="trailer-player">
+    <View style={styles.container}>
       {!showTrailer ? (
-        <button
-          className="trailer-player__toggle-btn"
-          onClick={() => setShowTrailer(true)}
-          aria-label="Afișează trailer"
+        <TouchableOpacity
+          style={styles.toggleButton}
+          onPress={() => setShowTrailer(true)}
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M8 5v14l11-7z"
-              fill="currentColor"
-            />
-          </svg>
-          Vezi Trailer
-        </button>
+          <Text style={styles.toggleButtonText}>▶ Vezi Trailer</Text>
+        </TouchableOpacity>
       ) : (
-        <div className="trailer-player__wrapper">
-          <button
-            className="trailer-player__close-btn"
-            onClick={() => setShowTrailer(false)}
-            aria-label="Închide trailer"
-          >
-            ×
-          </button>
-          {renderTrailer()}
-        </div>
+        <Modal
+          visible={showTrailer}
+          animationType="slide"
+          onRequestClose={() => setShowTrailer(false)}
+        >
+          <View style={styles.modalContainer}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowTrailer(false)}
+            >
+              <Text style={styles.closeButtonText}>× Închide</Text>
+            </TouchableOpacity>
+            {embedUrl ? (
+              <WebView
+                source={{ uri: embedUrl }}
+                style={styles.webview}
+                allowsFullscreenVideo
+                mediaPlaybackRequiresUserAction={false}
+              />
+            ) : (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>
+                  Format video neacceptat. Te rugăm să deschizi link-ul în browser.
+                </Text>
+                <TouchableOpacity
+                  style={styles.openBrowserButton}
+                  onPress={async () => {
+                    const supported = await Linking.canOpenURL(trailerUrl);
+                    if (supported) {
+                      await Linking.openURL(trailerUrl);
+                    }
+                    setShowTrailer(false);
+                  }}
+                >
+                  <Text style={styles.openBrowserButtonText}>Deschide în browser</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </Modal>
       )}
-    </div>
+    </View>
   );
 };
 
-export default TrailerPlayer;
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 15,
+  },
+  toggleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 15,
+    backgroundColor: '#f59e0b',
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+  },
+  toggleButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    padding: 12,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: '#f59e0b',
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  webview: {
+    flex: 1,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  openBrowserButton: {
+    padding: 15,
+    backgroundColor: '#f59e0b',
+    borderRadius: 12,
+  },
+  openBrowserButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+});
 
+export default TrailerPlayer;

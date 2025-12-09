@@ -29,9 +29,9 @@ const MovieDetail = ({ movies, userReviews, onAddReview }) => {
     );
   }
 
-  // Combine original reviews with user-added reviews
+  // Combine original reviews (if exist) with user-added reviews
   const allReviews = [
-    ...movie.reviews,
+    ...(movie.reviews || []), // Adaugă verificare pentru movie.reviews
     ...(userReviews[movie.id] || []),
   ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
@@ -47,6 +47,7 @@ const MovieDetail = ({ movies, userReviews, onAddReview }) => {
 
   const formatRating = (rating) => rating.toFixed(1);
   const formatRuntime = (minutes) => {
+    if (!minutes) return 'N/A';
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
@@ -125,12 +126,14 @@ const MovieDetail = ({ movies, userReviews, onAddReview }) => {
             </div>
             <div className="movie-detail__hero-text">
               <h1 className="movie-detail__title">{movie.title}</h1>
-              <p className="movie-detail__tagline">{movie.tagline}</p>
+              {movie.tagline && <p className="movie-detail__tagline">{movie.tagline}</p>}
               <div className="movie-detail__meta-row">
                 <span className="movie-detail__year">{movie.year}</span>
-                <span className="movie-detail__runtime">
-                  {formatRuntime(movie.runtime)}
-                </span>
+                {movie.runtime && (
+                  <span className="movie-detail__runtime">
+                    {formatRuntime(movie.runtime)}
+                  </span>
+                )}
                 {movie.releaseDate && (
                   <span className="movie-detail__release-date">
                     {formatDate(movie.releaseDate)}
@@ -168,7 +171,7 @@ const MovieDetail = ({ movies, userReviews, onAddReview }) => {
 
           <section className="movie-detail__section">
             <h2 className="movie-detail__section-title">Sinopsis</h2>
-            <p className="movie-detail__synopsis">{movie.synopsis}</p>
+            <p className="movie-detail__synopsis">{movie.synopsis || movie.plot || 'Fără descriere disponibilă.'}</p>
             {movie.fullDescription && (
               <div className="movie-detail__full-description">
                 <button
@@ -299,12 +302,14 @@ const MovieDetail = ({ movies, userReviews, onAddReview }) => {
                 <span className="movie-detail__crew-label">Regizor:</span>
                 <span className="movie-detail__crew-value">{movie.director}</span>
               </div>
-              <div className="movie-detail__crew-item">
-                <span className="movie-detail__crew-label">Scenariști:</span>
-                <span className="movie-detail__crew-value">
-                  {movie.writers.join(', ')}
-                </span>
-              </div>
+              {movie.writers && movie.writers.length > 0 && (
+                <div className="movie-detail__crew-item">
+                  <span className="movie-detail__crew-label">Scenariști:</span>
+                  <span className="movie-detail__crew-value">
+                    {movie.writers.join(', ')}
+                  </span>
+                </div>
+              )}
               <div className="movie-detail__crew-item">
                 <span className="movie-detail__crew-label">Distribuție:</span>
                 <span className="movie-detail__crew-value">
@@ -370,7 +375,7 @@ const MovieDetail = ({ movies, userReviews, onAddReview }) => {
           {movie.trivia && movie.trivia.length > 0 && (
             <section className="movie-detail__section">
               <h2 className="movie-detail__section-title">
-                Curiozități
+                Curiosități
                 <button
                   onClick={() => toggleSection('trivia')}
                   className="movie-detail__expand-btn"
@@ -454,7 +459,7 @@ const MovieDetail = ({ movies, userReviews, onAddReview }) => {
                   {showAllReviews
                     ? 'Afișează mai puține recenzii'
                     : `Afișează toate cele ${allReviews.length} recenzii`}
-                </button>
+                  </button>
               )}
             </div>
           </section>

@@ -1,7 +1,6 @@
-<<<<<<< HEAD
-# ReviewBox - Aplicație de Recenzii Filme
+# MovieReview - Aplicație de Recenzii Filme
 
-O aplicație modernă de recenzii pentru filme, inspirată de IMDb, construită cu React. Explorează filme, citește recenzii, filtrează după gen și sortează după preferințe.
+O aplicație modernă de recenzii pentru filme, inspirată de IMDb, disponibilă atât ca **aplicație web** (React) cât și ca **aplicație mobilă** (React Native/Expo) pentru Android și iOS.
 
 ## ✨ Funcționalități
 
@@ -15,43 +14,53 @@ O aplicație modernă de recenzii pentru filme, inspirată de IMDb, construită 
 - 📝 **Pagini de detalii** - Vezi sinopsis complet, echipă, distribuție și recenzii
 - 💰 **Detalii complete** - Buget, box office, premii, data lansării, țară, limbă
 - ✍️ **Adaugă recenzii** - Utilizatorii pot adăuga propriile recenzii și rating-uri
-- 💾 **Salvare locală** - Recenziile sunt salvate în localStorage
+- 💾 **Salvare locală** - Recenziile sunt salvate în AsyncStorage (mobile) sau localStorage (web)
 - 📈 **Rating dinamic** - Rating-ul mediu se calculează automat din toate recenziile
+- 🎥 **Trailer-uri** - Vizualizare trailer-uri YouTube/Vimeo
+- 🌐 **Integrare TMDB** - Adaugă filme populare direct din TMDB API
 
-## 🚀 Instalare și Rulare
+## 🚀 Versiuni Disponibile
 
-### Cerințe
-- Node.js (v14 sau mai nou)
-- npm sau yarn
+### 📱 React Native / Expo (Mobile)
 
-### Instalare
+Aplicația este disponibilă pentru **Android** și **iOS** folosind React Native și Expo.
+
+#### Instalare rapidă (Expo - Recomandat):
 
 ```bash
 npm install
+npm install expo
+npx expo install
+npx expo start
 ```
 
-### Rulare în mod development
+Apoi scanează QR code-ul cu aplicația **Expo Go** de pe telefon.
+
+#### Instalare completă (React Native CLI):
+
+Vezi [README_REACT_NATIVE.md](./README_REACT_NATIVE.md) pentru instrucțiuni detaliate.
+
+### 🌐 React Web
+
+Aplicația web originală construită cu Create React App.
 
 ```bash
+npm install
 npm start
 ```
 
 Aplicația se va deschide automat la [http://localhost:3000](http://localhost:3000)
 
-### Build pentru producție
-
-```bash
-npm run build
-```
-
-### Testare
-
-```bash
-npm test
-```
-
 ## 🛠️ Tehnologii Utilizate
 
+### Mobile (React Native):
+- **React Native** - Framework pentru aplicații mobile
+- **Expo** - Platformă pentru dezvoltare React Native
+- **React Navigation** - Navigare între ecrane
+- **AsyncStorage** - Stocare locală
+- **React Native WebView** - Vizualizare trailer-uri
+
+### Web:
 - **React** - Biblioteca UI
 - **React Router DOM** - Navigare și routing
 - **CSS3** - Stilizare modernă cu variabile CSS și design responsive
@@ -60,20 +69,33 @@ npm test
 ## 📁 Structura Proiectului
 
 ```
-src/
-├── components/
-│   ├── Header.js          # Header cu logo, căutare și film featured
-│   ├── MovieCard.js       # Card pentru afișarea filmelor în listă
-│   ├── MovieList.js       # Lista de filme cu sortare
-│   ├── MovieDetail.js     # Pagina de detalii pentru un film
-│   └── ReviewForm.js      # Formular pentru adăugare recenzii
-├── data/
-│   └── movies.js          # Datele filmelor (mock data) cu imagini TMDB
-├── utils/
-│   └── tmdbImages.js      # Helper functions pentru imagini TMDB
-├── App.js                 # Componenta principală cu routing și state management
-├── App.css                # Stiluri principale
-└── index.js               # Punctul de intrare al aplicației
+moviereview/
+├── App.js                    # React Native App (mobile)
+├── index.js                  # Entry point React Native
+├── app.json                  # Expo configuration
+├── babel.config.js           # Babel config
+├── metro.config.js          # Metro bundler config
+├── package.json              # Dependencies
+│
+├── src/
+│   ├── screens/              # React Native screens
+│   │   ├── HomeScreen.js
+│   │   └── MovieDetailScreen.js
+│   │
+│   ├── components/           # React Native components
+│   │   ├── Header.js
+│   │   ├── MovieCard.js
+│   │   ├── MovieList.js
+│   │   ├── ReviewForm.js
+│   │   └── TrailerPlayer.js
+│   │
+│   ├── data/                 # Movie data (shared)
+│   │   └── movies.js
+│   │
+│   └── utils/                # Utilities (shared)
+│       └── tmdbImages.js
+│
+└── public/                   # Web assets (web version only)
 ```
 
 ## 🎯 Funcționalități Principale
@@ -102,13 +124,14 @@ src/
 - Premii și nominalizări
 - Lista completă de recenzii cu rating-uri
 - Formular pentru adăugare recenzii noi
+- Vizualizare trailer-uri
 - Navigare înapoi la listă
 
 ### Adăugare Recenzii
 - Formular intuitiv cu validare
 - Câmpuri: nume, rating (1-10), text recenzie
 - Validare în timp real
-- Salvare automată în localStorage
+- Salvare automată în AsyncStorage (mobile) sau localStorage (web)
 - Rating-ul mediu se actualizează automat
 - Recenziile sunt sortate cronologic (cele mai recente primele)
 
@@ -149,12 +172,10 @@ Aplicația folosește imagini oficiale de la **The Movie Database (TMDB)**, un s
 - Poster images: `w500` (500px lățime)
 - Backdrop images: `w1280` (1280px lățime)
 
-Recenziile adăugate de utilizatori sunt salvate în `localStorage` și persistă între sesiuni.
-
 ## 🔮 Viitor
 
 Funcționalități potențiale pentru viitor:
-- Integrare cu API-uri reale (TMDB, OMDb)
+- Integrare completă cu TMDB API
 - Autentificare utilizatori
 - Editare/ștergere recenzii
 - Like/dislike pentru recenzii
@@ -163,6 +184,7 @@ Funcționalități potențiale pentru viitor:
 - Recomandări personalizate
 - Export date în diverse formate
 - Partajare recenzii pe social media
+- Notificări push pentru filme noi
 
 ## 📄 Licență
 
@@ -170,7 +192,4 @@ Acest proiect este open source și disponibil sub licență MIT.
 
 ---
 
-Făcut cu ❤️ folosind React
-=======
-# Movie-Review
->>>>>>> 2b0feadb8dad4270f73dcac500a90a767f8cc299
+**Făcut cu ❤️ folosind React și React Native**

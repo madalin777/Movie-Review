@@ -1,4 +1,12 @@
 import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 
 const ReviewForm = ({ onAddReview, movieId }) => {
   const [author, setAuthor] = useState('');
@@ -32,9 +40,7 @@ const ReviewForm = ({ onAddReview, movieId }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
+  const handleSubmit = () => {
     if (!validateForm()) {
       return;
     }
@@ -59,101 +65,265 @@ const ReviewForm = ({ onAddReview, movieId }) => {
 
   if (!showForm) {
     return (
-      <button
-        onClick={() => setShowForm(true)}
-        className="btn-primary review-form__toggle"
+      <TouchableOpacity
+        onPress={() => setShowForm(true)}
+        style={styles.toggleButton}
       >
-        + Adaugă o recenzie
-      </button>
+        <Text style={styles.toggleButtonText}>+ Adaugă o recenzie</Text>
+      </TouchableOpacity>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="review-form">
-      <h3 className="review-form__title">Adaugă o recenzie</h3>
+    <View style={styles.form}>
+      <Text style={styles.title}>Adaugă o recenzie</Text>
       
-      <div className="review-form__field">
-        <label htmlFor="review-author" className="review-form__label">
-          Numele tău <span className="review-form__required">*</span>
-        </label>
-        <input
-          id="review-author"
-          type="text"
+      <View style={styles.field}>
+        <Text style={styles.label}>
+          Numele tău <Text style={styles.required}>*</Text>
+        </Text>
+        <TextInput
+          style={[styles.input, errors.author && styles.inputError]}
           value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          className={`review-form__input ${errors.author ? 'review-form__input--error' : ''}`}
+          onChangeText={setAuthor}
           placeholder="Introdu numele tău"
+          placeholderTextColor="#64748b"
           maxLength={50}
         />
         {errors.author && (
-          <span className="review-form__error">{errors.author}</span>
+          <Text style={styles.error}>{errors.author}</Text>
         )}
-      </div>
+      </View>
 
-      <div className="review-form__field">
-        <label htmlFor="review-score" className="review-form__label">
-          Rating (1-10) <span className="review-form__required">*</span>
-        </label>
-        <div className="review-form__score-container">
-          <input
-            id="review-score"
-            type="range"
-            min="1"
-            max="10"
-            step="0.1"
-            value={score}
-            onChange={(e) => setScore(e.target.value)}
-            className="review-form__slider"
-          />
-          <span className="review-form__score-value">{score}</span>
-        </div>
+      <View style={styles.field}>
+        <Text style={styles.label}>
+          Rating (1-10) <Text style={styles.required}>*</Text>
+        </Text>
+        <View style={styles.scoreContainer}>
+          <View style={styles.scoreButtons}>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => (
+              <TouchableOpacity
+                key={value}
+                style={[
+                  styles.scoreButton,
+                  score === value && styles.scoreButtonActive,
+                ]}
+                onPress={() => setScore(value)}
+              >
+                <Text
+                  style={[
+                    styles.scoreButtonText,
+                    score === value && styles.scoreButtonTextActive,
+                  ]}
+                >
+                  {value}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.scoreValue}>{score}</Text>
+        </View>
         {errors.score && (
-          <span className="review-form__error">{errors.score}</span>
+          <Text style={styles.error}>{errors.score}</Text>
         )}
-      </div>
+      </View>
 
-      <div className="review-form__field">
-        <label htmlFor="review-content" className="review-form__label">
-          Recenzia ta <span className="review-form__required">*</span>
-        </label>
-        <textarea
-          id="review-content"
+      <View style={styles.field}>
+        <Text style={styles.label}>
+          Recenzia ta <Text style={styles.required}>*</Text>
+        </Text>
+        <TextInput
+          style={[styles.textarea, errors.content && styles.inputError]}
           value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className={`review-form__textarea ${errors.content ? 'review-form__input--error' : ''}`}
+          onChangeText={setContent}
           placeholder="Spune-ne ce crezi despre acest film..."
-          rows="5"
+          placeholderTextColor="#64748b"
+          multiline
+          numberOfLines={5}
           maxLength={1000}
         />
-        <div className="review-form__char-count">
+        <Text style={styles.charCount}>
           {content.length} / 1000 caractere
-        </div>
+        </Text>
         {errors.content && (
-          <span className="review-form__error">{errors.content}</span>
+          <Text style={styles.error}>{errors.content}</Text>
         )}
-      </div>
+      </View>
 
-      <div className="review-form__actions">
-        <button type="submit" className="btn-primary">
-          Trimite recenzia
-        </button>
-        <button
-          type="button"
-          onClick={() => {
+      <View style={styles.actions}>
+        <TouchableOpacity onPress={handleSubmit} style={styles.submitButton}>
+          <Text style={styles.submitButtonText}>Trimite recenzia</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
             setShowForm(false);
             setErrors({});
             setAuthor('');
             setScore(5);
             setContent('');
           }}
-          className="btn-secondary"
+          style={styles.cancelButton}
         >
-          Anulează
-        </button>
-      </div>
-    </form>
+          <Text style={styles.cancelButtonText}>Anulează</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
-export default ReviewForm;
+const styles = StyleSheet.create({
+  toggleButton: {
+    padding: 15,
+    backgroundColor: '#f59e0b',
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  toggleButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  form: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#2d2d2d',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 20,
+    color: '#f59e0b',
+    marginBottom: 20,
+    fontWeight: '800',
+    borderLeftWidth: 4,
+    borderLeftColor: '#f59e0b',
+    paddingLeft: 10,
+  },
+  field: {
+    marginBottom: 20,
+  },
+  label: {
+    marginBottom: 8,
+    color: '#f8fafc',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  required: {
+    color: '#ef4444',
+  },
+  input: {
+    width: '100%',
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 2,
+    borderColor: '#2d2d2d',
+    borderRadius: 12,
+    color: '#f8fafc',
+    fontSize: 14,
+  },
+  textarea: {
+    width: '100%',
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 2,
+    borderColor: '#2d2d2d',
+    borderRadius: 12,
+    color: '#f8fafc',
+    fontSize: 14,
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  inputError: {
+    borderColor: '#ef4444',
+  },
+  error: {
+    marginTop: 8,
+    color: '#ef4444',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  scoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+  },
+  scoreButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    flex: 1,
+  },
+  scoreButton: {
+    padding: 8,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 2,
+    borderColor: '#2d2d2d',
+    borderRadius: 8,
+  },
+  scoreButtonActive: {
+    backgroundColor: '#f59e0b',
+    borderColor: '#f59e0b',
+  },
+  scoreButtonText: {
+    color: '#cbd5e1',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  scoreButtonTextActive: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  scoreValue: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#f59e0b',
+    minWidth: 50,
+    textAlign: 'center',
+  },
+  charCount: {
+    marginTop: 8,
+    textAlign: 'right',
+    fontSize: 12,
+    color: '#64748b',
+    fontWeight: '600',
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 15,
+    marginTop: 20,
+    flexWrap: 'wrap',
+  },
+  submitButton: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: '#f59e0b',
+    borderRadius: 12,
+    alignItems: 'center',
+    minWidth: 150,
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  cancelButton: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 2,
+    borderColor: '#2d2d2d',
+    borderRadius: 12,
+    alignItems: 'center',
+    minWidth: 150,
+  },
+  cancelButtonText: {
+    color: '#f8fafc',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
 
+export default ReviewForm;
